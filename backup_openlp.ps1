@@ -67,4 +67,22 @@ if ($oldBackups) {
     $oldBackups | Remove-Item -Force
 }
 
+# Push to GitHub
+Write-Host "Pushing to GitHub..."
+Set-Location $BackupRoot
+
+# Ensure git user is configured (needed when running as different OS user)
+git config user.email "openlp-backup@local" 2>&1 | Out-Null
+git config user.name "OpenLP Backup" 2>&1 | Out-Null
+
+git add *.zip 2>&1 | Out-Null
+git commit -m "Backup $timestamp" 2>&1 | Out-Null
+git push origin main 2>&1 | Out-Null
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Push to GitHub successful."
+} else {
+    Write-Host "WARNING: Push to GitHub failed (exit code $LASTEXITCODE). Backup saved locally."
+}
+
 Write-Host "[$((Get-Date).ToString('yyyy-MM-dd_HH-mm-ss'))] Backup complete!"
